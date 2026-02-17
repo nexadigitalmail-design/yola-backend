@@ -1,21 +1,14 @@
+import os
 import requests
 from fastapi import FastAPI
-from pydantic import BaseModel
-from fastapi.middleware.cors import CORSMiddleware
+# ... other imports ...
 
 app = FastAPI()
 
-# This allows your index.html file to talk to this API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# This pulls the token from Render's "Environment Variables" safely
+HF_TOKEN = os.getenv("HF_TOKEN") 
+API_URL = "https://router.huggingface.co/hf-inference/models/eli911/yola-business-ai"
 
-# Replace with your actual details
-HF_TOKEN = "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"
-API_URL = "https://api-inference.huggingface.co/models/eli911/yola-business-ai"
 
 class BusinessData(BaseModel):
     data_input: str
@@ -38,4 +31,5 @@ def get_cloud_advice(text):
 async def analyze(data: BusinessData):
     # This actually runs the AI function!
     advice = get_cloud_advice(data.data_input)
+
     return {"analysis": advice}
