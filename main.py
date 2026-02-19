@@ -33,6 +33,20 @@ def health():
 
 @app.post("/analyze")
 async def analyze(data: BusinessData):
-    # Your logic here...
-    return {"status": "Success", "data": data.data_input}
+    headers = {"Authorization": f"Bearer {HF_TOKEN}"}
+    
+    # This prompt tells the AI how to behave
+    payload = {
+        "inputs": f"Analyze this Nigerian SME business data and provide: 1. Revenue 2. Expense Categories 3. Inventory Advice. Data: {data.data_input}",
+        "parameters": {"max_new_tokens": 500}
+    }
+    
+    # Sending to Hugging Face
+    response = requests.post(API_URL, headers=headers, json=payload)
+    
+    if response.status_code != 200:
+        return {"error": "AI is busy or warming up", "details": response.text}
+    
+    # Return the AI's actual words
+    return {"analysis": response.json()}
 
