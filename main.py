@@ -22,7 +22,7 @@ class BusinessData(BaseModel):
 HF_TOKEN = os.getenv("HF_TOKEN")
 # IMPORTANT: Replace with your actual Hugging Face model path
 MODEL_PATH = "eli777/yola-business-ai" 
-API_URL = f"https://api-inference.huggingface.co/models/{MODEL_PATH}"
+API_URL =f"https://router.huggingface.co/hf-inference/models/{MODEL_PATH}"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 @app.get("/")
@@ -52,5 +52,6 @@ async def analyze(data: BusinessData):
         raise HTTPException(status_code=response.status_code, detail=response.text)
     
     return {"analysis": response.json()}
+
 
 
