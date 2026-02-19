@@ -29,6 +29,10 @@ headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 def health_check():
     return {"status": "Yola AI Engine is Online"}
 
+@app.get("/")
+def home():
+    return {"message": "I am finally working!"}
+
 @app.post("/analyze")
 async def analyze(data: BusinessData):
     # This "Smart Prompt" tells the AI exactly what to do with the data
@@ -52,6 +56,7 @@ async def analyze(data: BusinessData):
         raise HTTPException(status_code=response.status_code, detail=response.text)
     
     return {"analysis": response.json()}
+
 
 
 
