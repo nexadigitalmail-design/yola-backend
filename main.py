@@ -6,8 +6,7 @@ from pydantic import BaseModel
 
 app = FastAPI(title="Yola AI Business Engine")
 
-# 1. ALLOW THE HANDSHAKE (CORS)
-# This lets Lovable connect to your Koyeb URL
+# 1. ENABLE CORS (Essential for Lovable connection)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -19,30 +18,29 @@ app.add_middleware(
 class BusinessData(BaseModel):
     data_input: str
 
+# 2. Configuration
 HF_TOKEN = os.getenv("HF_TOKEN")
-# TODO: Update with your specific model path
-API_URL = "https://api-inference.huggingface.co/models/YOUR_USERNAME/yola-business-ai"
+# IMPORTANT: Replace with your actual Hugging Face model path
+MODEL_PATH = "eli777/yola-business-ai" 
+API_URL = f"https://api-inference.huggingface.co/models/{MODEL_PATH}"
 headers = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 @app.get("/")
 def health_check():
-    return {"status": "Yola AI is alive and ready for entrepreneurs"}
+    return {"status": "Yola AI Engine is Online"}
 
 @app.post("/analyze")
 async def analyze(data: BusinessData):
-    # SYSTEM PROMPT: This tells the Brain HOW to think.
-    # It forces categorization, forecasting, and sentiment analysis.
-    prompt_with_instructions = (
-        "Instructions: Act as a Business Intelligence Expert. "
-        "1. Categorize all expenses mentioned. "
-        "2. Forecast next week's sales based on the trends provided. "
-        "3. Identify inventory risks. "
-        "4. Score customer sentiment (1-10).\n"
+    # This "Smart Prompt" tells the AI exactly what to do with the data
+    smart_prompt = (
+        "Instructions: You are a Business Analyst for SMEs in Nigeria. "
+        "From the following data: 1. Categorize all expenses. 2. Forecast next week's sales. "
+        "3. Identify inventory risks. 4. Analyze customer sentiment and product performance.\n\n"
         f"Business Data: {data.data_input}"
     )
 
     payload = {
-        "inputs": prompt_with_instructions,
+        "inputs": smart_prompt,
         "parameters": {"max_new_tokens": 500, "temperature": 0.7}
     }
     
@@ -50,8 +48,9 @@ async def analyze(data: BusinessData):
     
     if response.status_code != 200:
         if response.status_code == 503:
-            return {"error": "AI is warming up. Please retry in 20 seconds."}
+            return {"error": "AI is warming up on Hugging Face. Please retry in 20 seconds."}
         raise HTTPException(status_code=response.status_code, detail=response.text)
     
     return {"analysis": response.json()}
+
 
